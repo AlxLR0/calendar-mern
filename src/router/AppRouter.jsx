@@ -1,6 +1,6 @@
 import React from 'react'
 import { Navigate, Route, Routes } from 'react-router'
-import { LoginPage } from '../auth';
+import { LoginPage, RegisterPage } from '../auth';
 import { CalendarPage } from '../calendar';
 
 export const AppRouter = () => {
@@ -9,8 +9,13 @@ export const AppRouter = () => {
   return (
     <Routes>
         {
-            (authStatus === 'not-authenticated')
-            ?<Route path="/auth/*" element={<LoginPage/>}/>
+            (authStatus === 'authenticated')
+            ?(
+              <Route path="/auth/*">
+                <Route path="login" element={<LoginPage/>}/>
+                <Route path="register" element={<RegisterPage/>}/>
+              </Route>
+            )
             :<Route path="/*" element={<CalendarPage/>}/>
         }
         
