@@ -28,7 +28,7 @@ export const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false)
 
   return (
-    <header className="fixed inset-x-0 top-0 z-50 px-3 pt-3 sm:px-5 sm:pt-4">
+    <header className="sticky top-0 z-50 px-3 pt-3 sm:px-5 sm:pt-4">
       <nav className="mx-auto flex max-w-6xl items-center justify-between rounded-2xl border border-white/70 bg-white/75 px-3 py-2.5 shadow-[0_12px_40px_-18px_rgba(15,23,42,0.35)] backdrop-blur-xl sm:px-4" aria-label="Navegacion principal">
         <Link
           className="flex items-center gap-2 rounded-xl focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-indigo-600"
