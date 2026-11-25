@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { Calendar, dateFnsLocalizer } from 'react-big-calendar'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
 import './calendar.css'
@@ -6,6 +6,7 @@ import { addHours, format, getDay, parse, startOfWeek } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { CalendarToolbar } from '../components/CalendarToolbar'
 import { CalendarEvent } from '../components/CalendarEvent'
+import { CalendarModal } from '../components/calendarModal'
 import { Navbar } from '../'
 
 const views = ['month', 'week', 'day', 'agenda']
@@ -38,6 +39,7 @@ const events = [
 
 export const CalendarPage = () => {
   const [calendarView, setCalendarView] = useState('month')
+  const calendarModalRef = useRef(null)
 
   const eventStyleGetter = (event) => ({
     style: {
@@ -68,9 +70,19 @@ export const CalendarPage = () => {
           <div className="mb-5 flex flex-col gap-1 sm:mb-6 sm:flex-row sm:items-end sm:justify-between">
             <div>
               {/* <p className="text-sm font-medium text-indigo-600">Organiza tu tiempo</p> */}
-              <h1 className="mt-1 text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">Mi calendario</h1>
+              <h1 className="mt-1 text-2xl font-semibold tracking-tight text-indigo-600 sm:text-3xl">Mi calendario</h1>
               <p className="mt-1 text-sm text-slate-500">Revisa tus eventos y planifica lo que viene.</p>
             </div>
+            <button
+              className="cursor-pointer group inline-flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-indigo-600/20 transition duration-200 hover:-translate-y-0.5 hover:bg-indigo-700 hover:shadow-indigo-600/30 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 active:translate-y-0 sm:w-auto"
+              onClick={() => calendarModalRef.current?.showModal()}
+              type="button"
+            >
+              <svg aria-hidden="true" viewBox="0 0 20 20" fill="none" className="size-4 transition-transform group-hover:rotate-90">
+                <path d="M10 4v12M4 10h12" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+              </svg>
+              Nuevo evento
+            </button>
             {/* <div className="hidden items-center gap-2 rounded-full border border-emerald-100 bg-white/80 px-3 py-1.5 text-xs font-medium text-emerald-700 shadow-sm sm:flex">
               <span className="size-2 rounded-full bg-emerald-500" />
               Tu agenda está al día
@@ -95,6 +107,7 @@ export const CalendarPage = () => {
           </section>
         </div>
       </main>
+      <CalendarModal dialogRef={calendarModalRef} />
     </div>
   )
 }
