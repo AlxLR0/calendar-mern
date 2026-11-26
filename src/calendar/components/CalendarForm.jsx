@@ -142,7 +142,7 @@ export const CalendarForm = ({ closeAction }) => {
             Notas
           </label>
           <textarea
-            className="textarea textarea-bordered min-h-24 w-full resize-y rounded-xl border-slate-200 bg-white text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:border-indigo-500 focus:outline-indigo-500"
+            className="textarea textarea-bordered min-h-24 w-full resize-none rounded-xl border-slate-200 bg-white text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:border-indigo-500 focus:outline-indigo-500"
             id="calendar-event-notes"
             maxLength={1000}
             onChange={(event) => setNotes(event.target.value)}

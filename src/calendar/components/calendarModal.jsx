@@ -6,6 +6,9 @@ export const CalendarModal = ({ dialogRef }) => (
     aria-labelledby="calendar-modal-title"
     className="modal modal-middle !inset-auto !left-1/2 !top-1/2 !m-0 !h-auto !max-h-[90svh] !w-11/12 !max-w-xl -translate-x-1/2 -translate-y-1/2 !overflow-y-auto !rounded-3xl !border !border-white/60 !bg-white/40 !p-5 !text-slate-900 !shadow-2xl backdrop-blur-xl backdrop-saturate-150 backdrop:!block backdrop:bg-slate-900/10 sm:!p-8"
     data-theme="light"
+    onClose={(event) => {
+      event.currentTarget.scrollTop = 0
+    }}
     ref={dialogRef}
   >
     <div className="modal-box !w-full !max-w-none !max-h-none !overflow-visible !rounded-none !border-0 !bg-transparent !p-0 !shadow-none">
