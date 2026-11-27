@@ -1,55 +1,36 @@
-import { useState } from 'react'
 import { CalendarDatePicker } from './CalendarDatePicker'
+import { useCalendarEventForm } from '../../hooks/useCalendarEventForm'
 
-export const CalendarForm = ({ closeAction }) => {
-  const [title, setTitle] = useState('')
-  const [startDate, setStartDate] = useState('')
-  const [startTime, setStartTime] = useState('')
-  const [endDate, setEndDate] = useState('')
-  const [endTime, setEndTime] = useState('')
-  const [notes, setNotes] = useState('')
-  const [validationMessage, setValidationMessage] = useState('')
-
-  const sameDate = Boolean(startDate && endDate && startDate === endDate)
-  const invalidDateRange = Boolean(startDate && endDate && startDate > endDate)
-  const invalidTimeRange = Boolean(
-    sameDate && startTime && endTime && startTime >= endTime,
-  )
-
-  const handleSubmit = (event) => {
-    event.preventDefault()
-
-    if (!event.currentTarget.reportValidity()) {
-      return
-    }
-
-    if (!startDate || !endDate) {
-      setValidationMessage('Selecciona las fechas de inicio y fin.')
-      return
-    }
-
-    if (invalidDateRange) {
-      setValidationMessage('La fecha de fin debe ser igual o posterior a la fecha de inicio.')
-      return
-    }
-
-    if (invalidTimeRange) {
-      setValidationMessage('La hora de fin debe ser posterior a la hora de inicio.')
-      return
-    }
-
-    setValidationMessage('Las fechas y horas son válidas. El evento aún no se ha guardado.')
-  }
-
-  const handleDateChange = (setter) => (value) => {
-    setter(value)
-    setValidationMessage('')
-  }
-
-  const handleTimeChange = (setter) => (event) => {
-    setter(event.target.value)
-    setValidationMessage('')
-  }
+export const CalendarForm = ({ closeAction, onSave }) => {
+  const {
+    title,
+    startDate,
+    startTime,
+    endDate,
+    endTime,
+    notes,
+    titleTouched,
+    touchedFields,
+    validationMessage,
+    saveError,
+    missingTitle,
+    missingStartDate,
+    missingStartTime,
+    missingEndDate,
+    missingEndTime,
+    sameDate,
+    invalidDateRange,
+    invalidTimeRange,
+    handleSubmit,
+    handleTitleBlur,
+    handleTitleChange,
+    handleStartDateChange,
+    handleEndDateChange,
+    handleStartTimeChange,
+    handleEndTimeChange,
+    handleNotesChange,
+    markFieldTouched,
+  } = useCalendarEventForm(onSave)
 
   return (
     <>
@@ -61,16 +42,21 @@ export const CalendarForm = ({ closeAction }) => {
           <input
             autoComplete="off"
             className="input input-bordered w-full rounded-xl border-slate-200 bg-white text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:border-indigo-500 focus:outline-indigo-500"
+            aria-describedby={titleTouched && missingTitle ? 'calendar-event-title-error' : undefined}
+            aria-invalid={titleTouched && missingTitle}
             id="calendar-event-title"
             maxLength={100}
-            onChange={(event) => {
-              setTitle(event.target.value)
-              setValidationMessage('')
-            }}
+            onBlur={handleTitleBlur}
+            onChange={handleTitleChange}
             placeholder="Ej. Reunión de equipo"
             required
             value={title}
           />
+          {titleTouched && missingTitle && (
+            <p className="mt-2 text-xs text-rose-600" id="calendar-event-title-error" role="alert">
+              El título del evento es obligatorio.
+            </p>
+          )}
         </div>
 
         <fieldset>
@@ -78,26 +64,44 @@ export const CalendarForm = ({ closeAction }) => {
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-[minmax(0,1fr)_9rem]">
             <div>
               <CalendarDatePicker
+                ariaDescribedBy={touchedFields.startDate && missingStartDate ? 'calendar-start-date-error' : undefined}
+                ariaInvalid={touchedFields.startDate && missingStartDate}
                 id="calendar-start-date"
                 label="Fecha"
                 max={endDate}
-                onChange={handleDateChange(setStartDate)}
+                onChange={handleStartDateChange}
+                onBlur={markFieldTouched('startDate')}
                 value={startDate}
               />
             </div>
-            <label>
-              <span className="mb-1 block text-xs text-slate-500">Hora</span>
-              <input
-                aria-label="Hora de inicio"
-                className="input input-bordered w-full rounded-xl border-slate-200 bg-white text-sm text-slate-900 focus:border-indigo-500 focus:outline-indigo-500"
-                max={sameDate && endTime ? endTime : undefined}
-                onChange={handleTimeChange(setStartTime)}
-                required
-                type="time"
-                value={startTime}
-              />
-            </label>
+            <div>
+              <label>
+                <span className="mb-1 block text-xs text-slate-500">Hora</span>
+                <input
+                  aria-label="Hora de inicio"
+                  aria-describedby={touchedFields.startTime && missingStartTime ? 'calendar-start-time-error' : undefined}
+                  aria-invalid={touchedFields.startTime && missingStartTime}
+                  className="input input-bordered w-full rounded-xl border-slate-200 bg-white text-sm text-slate-900 focus:border-indigo-500 focus:outline-indigo-500"
+                  max={sameDate && endTime ? endTime : undefined}
+                  onBlur={markFieldTouched('startTime')}
+                  onChange={handleStartTimeChange}
+                  required
+                  type="time"
+                  value={startTime}
+                />
+              </label>
+            </div>
           </div>
+          {touchedFields.startDate && missingStartDate && (
+            <p className="mt-2 text-xs text-rose-600" id="calendar-start-date-error" role="alert">
+              Selecciona la fecha de inicio.
+            </p>
+          )}
+          {touchedFields.startTime && missingStartTime && (
+            <p className="mt-2 text-xs text-rose-600" id="calendar-start-time-error" role="alert">
+              Selecciona la hora de inicio.
+            </p>
+          )}
           {invalidDateRange && (
             <p className="mt-2 text-xs text-rose-600" role="alert">
               La fecha de inicio no puede ser posterior a la fecha de fin.
@@ -110,26 +114,44 @@ export const CalendarForm = ({ closeAction }) => {
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-[minmax(0,1fr)_9rem]">
             <div>
               <CalendarDatePicker
+                ariaDescribedBy={touchedFields.endDate && missingEndDate ? 'calendar-end-date-error' : undefined}
+                ariaInvalid={touchedFields.endDate && missingEndDate}
                 id="calendar-end-date"
                 label="Fecha"
                 min={startDate}
-                onChange={handleDateChange(setEndDate)}
+                onChange={handleEndDateChange}
+                onBlur={markFieldTouched('endDate')}
                 value={endDate}
               />
             </div>
-            <label>
-              <span className="mb-1 block text-xs text-slate-500">Hora</span>
-              <input
-                aria-label="Hora de fin"
-                className="input input-bordered w-full rounded-xl border-slate-200 bg-white text-sm text-slate-900 focus:border-indigo-500 focus:outline-indigo-500"
-                min={sameDate && startTime ? startTime : undefined}
-                onChange={handleTimeChange(setEndTime)}
-                required
-                type="time"
-                value={endTime}
-              />
-            </label>
+            <div>
+              <label>
+                <span className="mb-1 block text-xs text-slate-500">Hora</span>
+                <input
+                  aria-label="Hora de fin"
+                  aria-describedby={touchedFields.endTime && missingEndTime ? 'calendar-end-time-error' : undefined}
+                  aria-invalid={touchedFields.endTime && missingEndTime}
+                  className="input input-bordered w-full rounded-xl border-slate-200 bg-white text-sm text-slate-900 focus:border-indigo-500 focus:outline-indigo-500"
+                  min={sameDate && startTime ? startTime : undefined}
+                  onBlur={markFieldTouched('endTime')}
+                  onChange={handleEndTimeChange}
+                  required
+                  type="time"
+                  value={endTime}
+                />
+              </label>
+            </div>
           </div>
+          {touchedFields.endDate && missingEndDate && (
+            <p className="mt-2 text-xs text-rose-600" id="calendar-end-date-error" role="alert">
+              Selecciona la fecha de fin.
+            </p>
+          )}
+          {touchedFields.endTime && missingEndTime && (
+            <p className="mt-2 text-xs text-rose-600" id="calendar-end-time-error" role="alert">
+              Selecciona la hora de fin.
+            </p>
+          )}
           {invalidTimeRange && (
             <p className="mt-2 text-xs text-rose-600" role="alert">
               Si ambas fechas son el mismo día, la hora de fin debe ser posterior a la hora de inicio.
@@ -145,7 +167,7 @@ export const CalendarForm = ({ closeAction }) => {
             className="textarea textarea-bordered min-h-24 w-full resize-none rounded-xl border-slate-200 bg-white text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:border-indigo-500 focus:outline-indigo-500"
             id="calendar-event-notes"
             maxLength={1000}
-            onChange={(event) => setNotes(event.target.value)}
+            onChange={handleNotesChange}
             placeholder="Agrega detalles para recordar..."
             value={notes}
           />
@@ -154,7 +176,7 @@ export const CalendarForm = ({ closeAction }) => {
         {validationMessage && (
           <p
             aria-live="polite"
-            className={`rounded-xl px-3.5 py-3 text-sm ${invalidDateRange || invalidTimeRange || !startDate || !endDate ? 'bg-rose-50 text-rose-700' : 'bg-indigo-50 text-indigo-700'}`}
+            className={`rounded-xl px-3.5 py-3 text-sm ${saveError || invalidDateRange || invalidTimeRange || !startDate || !endDate ? 'bg-rose-50 text-rose-700' : 'bg-indigo-50 text-indigo-700'}`}
             role="status"
           >
             {validationMessage}

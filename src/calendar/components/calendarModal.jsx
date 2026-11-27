@@ -1,6 +1,6 @@
 import { CalendarForm } from './CalendarForm'
 
-export const CalendarModal = ({ dialogRef }) => (
+export const CalendarModal = ({ dialogRef, onSave }) => (
   <dialog
     aria-describedby="calendar-modal-description"
     aria-labelledby="calendar-modal-title"
@@ -12,7 +12,7 @@ export const CalendarModal = ({ dialogRef }) => (
     ref={dialogRef}
   >
     <div className="modal-box !w-full !max-w-none !max-h-none !overflow-visible !rounded-none !border-0 !bg-transparent !p-0 !shadow-none">
-      <div className="mb-5 flex size-11 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600">
+      <div className="mb-3 flex size-11 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600">
         <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" className="size-5">
           <rect x="3.75" y="5.75" width="16.5" height="14.5" rx="3" stroke="currentColor" strokeWidth="1.7" />
           <path d="M8 3.75v4M16 3.75v4M4 10h16" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
@@ -35,6 +35,7 @@ export const CalendarModal = ({ dialogRef }) => (
             </button>
           </form>
         )}
+        onSave={onSave}
       />
     </div>
   </dialog>

@@ -39,7 +39,17 @@ const formatAccessibleDate = (date) =>
     year: 'numeric',
   }).format(date)
 
-export const CalendarDatePicker = ({ id, label, value, min, max, onChange }) => {
+export const CalendarDatePicker = ({
+  id,
+  label,
+  value,
+  min,
+  max,
+  onChange,
+  onBlur,
+  ariaInvalid,
+  ariaDescribedBy,
+}) => {
   const triggerRef = useRef(null)
   const popoverRef = useRef(null)
   const [visibleMonth, setVisibleMonth] = useState(() => {
@@ -97,11 +107,20 @@ export const CalendarDatePicker = ({ id, label, value, min, max, onChange }) => 
   }
 
   return (
-    <div className="min-w-0">
+    <div
+      className="min-w-0"
+      onBlur={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget)) {
+          onBlur?.()
+        }
+      }}
+    >
       <span className="mb-1 block text-xs text-slate-500">{label}</span>
       <button
         aria-controls={popoverId}
+        aria-describedby={ariaDescribedBy}
         aria-haspopup="dialog"
+        aria-invalid={ariaInvalid}
         className="input input-bordered flex w-full items-center justify-between gap-2 rounded-xl border-slate-200 bg-white text-left text-sm font-normal text-slate-900 focus:border-indigo-500 focus:outline-indigo-500"
         id={id}
         onClick={handleOpen}

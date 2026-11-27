@@ -2,12 +2,13 @@ import { useRef, useState } from 'react'
 import { Calendar, dateFnsLocalizer } from 'react-big-calendar'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
 import './calendar.css'
-import { addHours, format, getDay, parse, startOfWeek } from 'date-fns'
+import { format, getDay, parse, startOfWeek } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { CalendarToolbar } from '../components/CalendarToolbar'
 import { CalendarEvent } from '../components/CalendarEvent'
 import { CalendarModal } from '../components/calendarModal'
 import { Navbar } from '../'
+import { useCalendarEvents } from '../../hooks/useCalendarEvents'
 
 const views = ['month', 'week', 'day', 'agenda']
 
@@ -23,23 +24,11 @@ const localizer = dateFnsLocalizer({
   locales,
 })
 
-const events = [
-  {
-    title: 'Cumpleaños',
-    notes: 'Comprar pastel',
-    start: new Date(),
-    end: addHours(new Date(), 2),
-    bgColor: '#4f46e5',
-    user: {
-      _id: '123',
-      name: 'alx',
-    },
-  },
-]
-
 export const CalendarPage = () => {
   const [calendarView, setCalendarView] = useState('month')
+  const [calendarDate, setCalendarDate] = useState(() => new Date())
   const calendarModalRef = useRef(null)
+  const { events, loadError, createEvent } = useCalendarEvents()
 
   const eventStyleGetter = (event) => ({
     style: {
@@ -58,6 +47,11 @@ export const CalendarPage = () => {
 
   const onSelected = (event) =>{
     console.log({click: event});
+  }
+
+  const handleSaveEvent = async (eventData) => {
+    await createEvent(eventData)
+    calendarModalRef.current?.close()
   }
 
 
@@ -89,13 +83,22 @@ export const CalendarPage = () => {
             </div> */}
           </div>
 
+          {loadError && (
+            <p className="mb-3 rounded-xl bg-rose-50 px-3 py-2 text-sm text-rose-700" role="alert">
+              {loadError}
+            </p>
+          )}
+
           <section aria-label="Calendario de eventos" className="rounded-2xl border border-slate-200/80 bg-white/90 p-3 shadow-[0_20px_60px_-35px_rgba(15,23,42,0.35)] backdrop-blur-sm sm:rounded-3xl sm:p-5 lg:p-6">
             <Calendar
               culture="es"
               components={{ toolbar: CalendarToolbar, event: CalendarEvent }}
               eventPropGetter={eventStyleGetter}
+              eventIdAccessor="_id"
               events={events}
+              date={calendarDate}
               localizer={localizer}
+              onNavigate={setCalendarDate}
               onView={setCalendarView}
               startAccessor="start"
               endAccessor="end"
@@ -107,7 +110,7 @@ export const CalendarPage = () => {
           </section>
         </div>
       </main>
-      <CalendarModal dialogRef={calendarModalRef} />
+      <CalendarModal dialogRef={calendarModalRef} onSave={handleSaveEvent} />
     </div>
   )
 }
